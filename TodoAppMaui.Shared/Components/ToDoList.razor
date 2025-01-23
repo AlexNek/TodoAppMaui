@@ -1,0 +1,114 @@
+﻿@using TodoAppMaui.Shared.Models
+@using TodoAppMaui.Shared.Services
+@implements IDisposable
+
+@inject IToDoService ToDoService
+@inject IJSRuntime JSRuntime
+
+@* All Section could be placed in separate files *@
+@* CSS Section *@
+<style>
+    /* don't work now from there */
+</style>
+
+@* JavaScript Interop Section *@
+<script>
+    window.todoApp = {
+        getWindowWidth: () => window.innerWidth,
+        addWindowResizeListener: (dotnetReference) => {
+            window.addEventListener('resize', () =>
+            dotnetReference.invokeMethodAsync('OnWindowResize', window.innerWidth));
+        }
+    };
+</script>
+
+@* Search and Add Section *@
+<div style="min-width: 300px">
+    <div class="todo-actions" >
+        <RadzenTextBox Placeholder="Search todos..."
+                       @oninput="@(args => OnSearch(args.Value.ToString()))"
+                       data-testid="search-todo-input" />
+
+        <RadzenButton Icon="add_circle_outline"
+                      Class="mb-3"
+                      ButtonStyle="ButtonStyle.Success"
+                      Text="Add Todo"
+                      Click="@AddTodo"
+                      Disabled="@IsAdding"
+                      data-testid="add-todo-button" />
+    </div>
+
+    @*  Grid Section *@
+    <RadzenDataGrid @ref="TodoGrid"
+                    Data="@FilteredTodos"
+                    TItem="ToDoItem"
+                    AllowFiltering="true"
+                    AllowPaging="true"
+                    AllowSorting="true"
+                    ShowHeader="true"
+                    Responsive="true"
+                    Class="@GridClass"
+                    CellRender="@OnCellRender"
+                    data-testid="todo-grid">
+        <Columns>
+            <RadzenDataGridColumn TItem="ToDoItem" Property="IsCompleted" Title="Done" Filterable="false" Width="40px">
+                <Template Context="todo">
+                    <RadzenCheckBox Value="@todo.IsCompleted"
+                                    ValueChanged="@((bool value) => OnIsCompletedChanged(todo, value))"
+                                    data-testid="todo-completed-checkbox" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="ToDoItem" Property="Title" Title="Title">
+                <EditTemplate Context="todo">
+                    <RadzenTextBox @bind-Value="todo.Title" Style="width: 100%" data-testid="edit-title-input" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="ToDoItem" Property="Description" Title="Description">
+                <EditTemplate Context="todo">
+                    <RadzenTextBox @bind-Value="todo.Description" Style="width: 100%" data-testid="edit-description-input" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="ToDoItem"
+                                  Property="CreationDate"
+                                  Title="Created On"
+                                  FormatString="{0:dd/MM/yyyy HH:mm}"
+                                  Visible="@ShowCreationDate"
+                                  Width="130px"
+                                  @key="ShowCreationDate" />
+            <RadzenDataGridColumn TItem="ToDoItem"
+                                  Context="todo"
+                                  Filterable="false"
+                                  Sortable="false"
+                                  TextAlign="TextAlign.Center"
+                                  Width="100px">
+                <Template Context="todo">
+                    <RadzenButton Icon="edit"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Class="m-1"
+                                  Click="@(_ => EditRow(todo))"
+                                  @onclick:stopPropagation="true"
+                                  data-testid="edit-todo-button" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                  Icon="delete"
+                                  Size="ButtonSize.Small"
+                                  Class="m-1"
+                                  Click="@(_ => DeleteTodo(todo.Id))"
+                                  @onclick:stopPropagation="true"
+                                  data-testid="delete-todo-button" />
+                </Template>
+                <EditTemplate Context="todo">
+                    <RadzenButton Icon="check"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  Class="m-1"
+                                  Click="@(_ => SaveRow(todo))"
+                                  data-testid="save-todo-button" />
+                    <RadzenButton Icon="close"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Class="m-1"
+                                  Click="@(_ => CancelEdit(todo))"
+                                  data-testid="cancel-edit-button" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</div>
