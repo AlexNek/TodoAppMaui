@@ -44,7 +44,7 @@ Here’s a quick look at each part:
     *   **Why do we need this?** This is where the UI elements are loaded for the Blazor web app, and this code runs on the user’s computer (in the browser).
 ### Architecture - How it all fits together
 
-![image](TodoAppMaui6.png)
+![image](images/TodoAppMaui6.png)
 
 -   **`TodoAppMaui.Shared`** is the base for `TodoAppMaui` and `TodoAppMaui.Web.Client`.
 -   **`TodoAppMaui`** is the main MAUI project.
@@ -152,6 +152,7 @@ This has all the shared code and UI parts of the app. It's made to be reused acr
 ## `TodoAppMaui.Shared.Tests`
 
 This is where we write tests for the `TodoAppMaui.Shared` project. It makes sure the logic is reliable.
+More about bUnit testing can be found [here](https://github.com/AlexNek/Blazor-for-You/blob/master/bUnit/readme.md)
 
 ### Structure:
 
@@ -208,6 +209,13 @@ Then in tests we find elements using:
 ## Overview
 
 This is a basic Blazor component for managing to-do lists. You can add, edit, delete, and search tasks.
+
+Desktop screen size:  
+![image](images/todo-big.png)
+
+Smartphone screen size:  
+![image](images/todo-small.png)
+
 
 ## Features
 
